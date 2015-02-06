@@ -1,0 +1,2 @@
+# cmmdm
+centminmod domain manager
