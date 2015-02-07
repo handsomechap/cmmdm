@@ -15,9 +15,9 @@
 
 ##########################
 # - welcome message
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "starting cmmdm installation"
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 ##########################
 
 ##########################
@@ -25,14 +25,14 @@ echo "##################################################"
 wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -q /root/tools/cmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Error: cmmdm.sh download from github failed."
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 exit $ERROR
 else
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh download from github successful."
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 fi
 # - modify script permissions to be runnable
 chmod 0700 /root/tools/cmmdm.sh
@@ -41,9 +41,9 @@ mkdir /root/tools/cmmdm
 
 ##########################
 # - create suspended domain page to redirect to, set your own if you want to
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: Creating suspension page for redirects."
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 CMMDMDIR='/home/nginx/domains/cmmdm'
 mkdir -p $CMMDMDIR/suspendedpage
 touch $CMMDMDIR/suspendedpage/index.html
@@ -52,9 +52,9 @@ chown -R nginx $CMMDMDIR
 
 ##########################
 # - add alias for interacting with cmmdm
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: Creating new command: cmmdm."
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo 'bash /root/tools/cmmdm.sh' >/usr/bin/cmmdm
 chmod +x /usr/bin/cmmdm
 ##########################
@@ -62,7 +62,7 @@ chmod +x /usr/bin/cmmdm
 
 ##########################
 # - script installation completed
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh Installation Completed."
-echo "##################################################"
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 ##########################
