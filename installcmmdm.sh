@@ -13,25 +13,34 @@
 # ./installcmmdm.sh
 ##################################################
 
+##########################
 # - welcome message
 echo "starting cmmdm installation"
+##########################
 
-# - download cmmdm.sh
-wget -cnv --no-check-certificate https://raw.github.com/cmmdm/cmmdm.sh -O /usr/bin/cmmdm --tries=3
+##########################
+# - pull cmmdm.sh from github, if pull fails then error out
+wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -O /root/tools/cmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
-echo "Error: /usr/bin/wp download failed."
+echo "Error: cmmdm.sh download failed."
 exit $ERROR
 else
-echo "Download done."
+echo "Download cmmdm successful."
 fi
+# - modify script permissions to be runnable
+chmod 0700 /root/tools/cmmdm.sh
+##########################
 
+##########################
 # - create suspended domain page to redirect to, set your own if you want to
 CMMDMDIR='/home/nginx/domains/cmmdm'
 mkdir -p $CMMDMDIR/suspendedpage
 touch $CMMDMDIR/suspendedpage/index.html
 chown -R nginx $CMMDMDIR 
+##########################
 
+##########################
 # - add alias for interacting with cmmdm
-echo 'bash cmmdm.sh' >/usr/bin/cmmdm
-
+echo 'bash /root/tools/cmmdm.sh' >/usr/bin/cmmdm
+##########################
