@@ -1,7 +1,7 @@
 # cmmdm
 CentMinMod Domain Manager
 
-An addon to give additional domain management capabilities to centminmod hosting environments
+An addon to give simple domain management capabilities to centminmod hosting environments
 
 cmmdm will not touch or modify centminmod in any way
 
