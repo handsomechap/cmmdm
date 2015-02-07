@@ -23,7 +23,7 @@ echo ""
 
 ##########################
 # - pull cmmdm.sh  and uninstallcmmdm.sh from github, if pull fails then error out
-wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -q /root/tools/cmmdm.sh --tries=3
+wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -O /root/tools/cmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
@@ -36,7 +36,7 @@ echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh download from github successful."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo ""
-wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/uninstallcmmdm.sh -q /root/tools/uninstallcmmdm.sh --tries=3
+wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/uninstallcmmdm.sh -O /root/tools/uninstallcmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
