@@ -8,3 +8,4 @@
 # set of commandline tools to enable easier domain
 # management within centminmod hosting environment
 ##################################################
+echo "CentMinModDomainManager"
