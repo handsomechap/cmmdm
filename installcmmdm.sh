@@ -45,4 +45,5 @@ chown -R nginx $CMMDMDIR
 # - add alias for interacting with cmmdm
 echo "Creating new command: cmmdm"
 echo 'bash /root/tools/cmmdm.sh' >/usr/bin/cmmdm
+chmod +x /usr/bin/cmmdm
 ##########################
