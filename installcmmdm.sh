@@ -20,7 +20,7 @@ echo "starting cmmdm installation"
 
 ##########################
 # - pull cmmdm.sh from github, if pull fails then error out
-wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -O /root/tools/cmmdm.sh --tries=3
+wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -q /root/tools/cmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
 echo "Error: cmmdm.sh download from github failed."
