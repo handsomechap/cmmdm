@@ -9,3 +9,5 @@
 # management within centminmod hosting environment
 ##################################################
 echo "CentMinModDomainManager"
+echo $1
+echo $2
