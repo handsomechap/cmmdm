@@ -13,6 +13,9 @@
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "performing uninstall routine now"
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+rmdir -rf /root/tools/cmmdm
+rm -f /root/tools/cmmdm.sh
+rm -f /usr/bin/cmmdm
 ##########################
 
 ##########################
