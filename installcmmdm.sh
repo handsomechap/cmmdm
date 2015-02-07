@@ -21,7 +21,7 @@ echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 ##########################
 
 ##########################
-# - pull cmmdm.sh from github, if pull fails then error out
+# - pull cmmdm.sh  and uninstallcmmdm.sh from github, if pull fails then error out
 wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/cmmdm.sh -q /root/tools/cmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
@@ -33,9 +33,22 @@ else
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh download from github successful."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/uninstallcmmdm.sh -q /root/tools/uninstallcmmdm.sh --tries=3
+ERROR=$?
+if [[ "$ERROR" != '0' ]]; then
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo "Error: uninstallcmmdm.sh download from github failed."
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+exit $ERROR
+else
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo "Okay: uninstallcmmdm.sh download from github successful."
+echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+fi
 fi
 # - modify script permissions to be runnable
 chmod 0700 /root/tools/cmmdm.sh
+chmod 0700 /root/tools/uninstallcmmdm.sh
 mkdir /root/tools/cmmdm
 ##########################
 
