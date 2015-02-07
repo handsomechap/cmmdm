@@ -18,6 +18,7 @@
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "starting cmmdm installation"
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 ##########################
 
 ##########################
@@ -28,22 +29,26 @@ if [[ "$ERROR" != '0' ]]; then
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Error: cmmdm.sh download from github failed."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 exit $ERROR
 else
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh download from github successful."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 wget -cnv --no-check-certificate https://raw.githubusercontent.com/handsomechap/cmmdm/master/uninstallcmmdm.sh -q /root/tools/uninstallcmmdm.sh --tries=3
 ERROR=$?
 if [[ "$ERROR" != '0' ]]; then
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Error: uninstallcmmdm.sh download from github failed."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 exit $ERROR
 else
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: uninstallcmmdm.sh download from github successful."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 fi
 fi
 # - modify script permissions to be runnable
@@ -57,6 +62,7 @@ mkdir /root/tools/cmmdm
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: Creating suspension page for redirects."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 CMMDMDIR='/home/nginx/domains/cmmdm'
 mkdir -p $CMMDMDIR/suspendedpage
 touch $CMMDMDIR/suspendedpage/index.html
@@ -68,6 +74,7 @@ chown -R nginx $CMMDMDIR
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: Creating new command: cmmdm."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 echo 'bash /root/tools/cmmdm.sh' >/usr/bin/cmmdm
 chmod +x /usr/bin/cmmdm
 ##########################
@@ -78,4 +85,5 @@ chmod +x /usr/bin/cmmdm
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
 echo "Okay: cmmdm.sh Installation Completed."
 echo "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+echo ""
 ##########################
