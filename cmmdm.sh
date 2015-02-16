@@ -265,3 +265,106 @@ fi
 }
 
 #########################################################################
+
+#########################################################################
+function funcassociatedb {
+# This function will associate a domain and a database together
+                                                                                                                                               # Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+    # okay user chooses a domain, lets associate a database to a domain
+    # first lets check if the domain currently has an association file, if not create one
+    assocfile=/root/tools/cmmdm/cmmdmdbassoc/${cdarray[$choice]}
+    if [ ! -f $assocfile ]; then
+        touch $assocfile
+fi
+
+# next lets check if the domain already has any database associations listed
+if [[ -s $assocfile ]] ; then
+    printf "${cdarray[$choice]} already has the following databases associated to it:\n\n"
+    cat $assocfile | while read assocline
+    do
+      printf "   MySQL Database: $assocline\n"
+    done
+    printf "\n"
+
+else
+    printf "${cdarray[$choice]} currently has no databases associated to it.\n"
+fi
+
+# okay now we can go ahead and attempt to associate a new database
+# first lets read the existing databases into an array for manipulation
+read -ra dbarray <<< $(mysql  -u root -p$mysqlpass -se "SHOW DATABASES")
+# insert Cancel choice
+dbarray=( Cancel "${dbarray[@]}" )
+
+printf "Please choose from the following. 0 to cancel & return to main menu.\n"
+
+for i in "${!dbarray[@]}"; do
+    printf '   %d %s\n' "$i" "${dbarray[i]}"
+done
+printf '\n'
+
+    # Now wait for user input
+    while true; do
+        read -e -r -p 'Your choice: ' choice
+        # Check that user's choice is a valid number
+        if [[ $choice = +([[:digit:]]) ]]; then
+            # Force the number to be interpreted in radix 10
+            ((choice=10#$choice))
+            # Check that choice is a valid choice
+            ((choice<${#dbarray[@]})) && break
+        fi
+        printf 'Invalid choice, please start again.\n'
+    done
+
+    if ((choice==0)); then
+        printf 'Going back to main menu.\n'
+
+    else
+        # okay so we have chosen a database, lets do a couple of checks
+        # firstly is it already associated with the domain
+        if grep -Fxq "${dbarray[$choice]}" $assocfile
+        then
+        # code if found
+        printf "Error: Unable to proceed, the database is already associated to this domain\n"
+        else
+        # code if not found
+        # printf "okay lets proceed, its not already associated\n"
+        printf "associating MySQL Database: ${dbarray[$choice]} to domain: ${cdarray[$choice]} \n"
+        echo "${dbarray[$choice]}" >> $assocfile
+
+        fi
+
+    fi
+
+
+fi
+
+
+
+}
+#########################################################################
