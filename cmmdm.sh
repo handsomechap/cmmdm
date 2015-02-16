@@ -823,3 +823,113 @@ fi
 }
 #########################################################################
 
+
+
+#########################################################################
+function funcshowmysql {
+mysql --user root --password=$mysqlpass --exec="SHOW DATABASES"
+mysql --user root --password=$mysqlpass --exec="SELECT User,host FROM mysql.user"
+}
+#########################################################################
+
+
+#########################################################################
+function funceinsteinquote {
+# using total quotes imported as upper bound of quote file
+# randomly chose a quote to print
+
+
+rnum=$(( RANDOM % ${#quotearray[@]}  ))
+printf "\n  ${quotearray[$rnum]}\n   - Albert Einstein\n\n"
+
+}
+
+#########################################################################
+
+
+#########################################################################
+#########################################################################
+# here is the start of the program itself
+
+funcheader
+
+while true; do
+
+for i in "${!mmarray[@]}"; do
+    printf '   %d %s\n' "$i" "${mmarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#mmarray[@]})) && break
+    fi
+    printf 'Invalid choice, please start again.\n'
+done
+
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Exiting CMMDM. Good Bye.\n'
+    exit 0
+
+elif  ((choice==1)); then
+    printf 'Choose a domain to suspend.\n'
+    funcsuspenddomain
+
+elif  ((choice==2)); then
+    printf 'Choose a domain to unsuspend.\n'
+    funcunsuspenddomain
+
+elif  ((choice==3)); then
+    printf 'Choose a domain to associate a database to.\n'
+    funcassociatedb
+
+
+elif  ((choice==4)); then
+    printf 'Choose a domain to disassociate a database from.\n'
+    funcdisassociatedb
+
+elif  ((choice==5)); then
+    printf 'These are your current domain -> database associations.\n'
+    funcviewassociations
+
+
+elif  ((choice==6)); then
+    printf 'Choose a domain to delete WARNING IRREVERSIBLE.\n'
+    funcdeletedomain
+
+
+elif  ((choice==7)); then
+    printf 'Choose a domain to backup.\n'
+    funcbackupdomain
+
+
+elif  ((choice==8)); then
+    printf 'Choose a domain to restore.\n'
+    funcrestoredomain
+
+
+elif  ((choice==9)); then
+    printf 'These are your current databases and database users.\n'
+    funcshowmysql
+
+elif  ((choice==10)); then
+    printf 'Heres a random insightful quote from the man himself.\n'
+    funceinsteinquote
+
+fi
+
+done
+
+# end of main program
+#######################################################################
+#######################################################################
+# end of file, in the immortal words of bugs bunny, That's All Folks!
