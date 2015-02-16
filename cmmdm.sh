@@ -453,3 +453,142 @@ fi
 
 }
 #########################################################################
+
+#########################################################################
+function funcviewassociations {
+# okay lets view all the current database to domain associations
+
+# use an array of all current domains
+
+# Create domain array
+if [[ -z $omitdir ]]; then
+   cdassocarray=( "$basedir"/*/ )
+else
+   cdassocarray=( "$basedir"/!($omitdir)/ )
+fi
+# remove leading basedir:
+cdassocarray=( "${cdassocarray[@]#"$basedir/"}" )
+cdassocarray=( "${cdassocarray[@]%"/"}" )
+
+
+# You should check that you have at least one domain in there:
+if ((${#cdassocarray[@]}<=1)); then
+    printf 'ERROR: No domains found.\n'
+fi
+
+# for each domain first print the domain name then print the assocation file for each domain
+
+for i in "${!cdassocarray[@]}"; do
+    printf "${cdassocarray[i]}\n"
+
+    assocfile=/root/tools/cmmdm/cmmdmdbassoc/${cdassocarray[i]}
+    if [ ! -f $assocfile ]; then
+        touch $assocfile
+    fi
+    # next lets check if the domain already has any database associations listed
+    if [[ -s $assocfile ]] ; then
+ #       printf "${cdarray[$choice]} already has the following databases associated to it:\n\n"
+        cat $assocfile | while read assocline
+        do
+          printf "   MySQL Database: $assocline\n"
+        done
+#        printf "\n"
+
+    else
+        printf "    currently has no databases associated to it.\n"
+    fi
+
+done
+printf '\n'
+
+
+}
+#########################################################################
+
+
+#########################################################################
+function funcdeletedomain {
+# printf "This function will delete a domain"
+
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+    # okay user chooses a domain, lets check they really do want to delete the domain
+    printf "WARNING deletion is irreversible, check you need/have a backup!!\n\n"
+    printf "   0 Cancel \n\n"
+    printf "   1 Yes I really do want to delete ${cdarray[choice]} \n\n"
+    printf "   2 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   3 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   4 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   5 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   6 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   7 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   8 Wait cancel, I dont want to delete ${cdarray[choice]} \n"
+    printf "   9 Wait cancel, I dont want to delete ${cdarray[choice]} \n\n"
+
+
+    # Now wait for user input
+    while true; do
+       read -e -r -p 'Your choice: ' deletechoice
+        # Check that user's choice is a valid number
+        if [[ $deletechoice = +([[:digit:]]) ]]; then
+            # Force the number to be interpreted in radix 10
+            ((deletechoice=10#$deletechoice))
+            # Check that choice is a valid choice
+            ((deletechoice<10)) && break
+        fi
+        printf 'Invalid choice, please choose again.\n'
+    done
+
+    # At this point, we are sure the variable choice contains
+    # a valid choice.
+    if ((deletechoice==1)); then
+        # so user really wants to delete domain, lets do it
+        printf "Okay, confirmed! Deleting domain.\n"
+        # delete the domains conf file
+        printf "Removing /usr/local/nginx/conf/conf.d/${cdarray[choice]} \n"
+        rm -f /usr/local/nginx/conf/conf.d/${cdarray[choice]}
+        printf "Removing /usr/local/nginx/conf/conf.d/${cdarray[choice]}.suspended \n"
+        rm -f /usr/local/nginx/conf/conf.d/${cdarray[choice]}.suspended
+        # delete the domain folder
+        printf "Removing /home/nginx/domains/${cdarray[choice]} \n"
+        rm -rf /home/nginx/domains/${cdarray[choice]}
+        # remove the domains cmmdm database association file
+        printf "Removing /root/tools/cmmdm/cmmdmdbassoc/${cdarray[choice]} \n"
+        rm -f /root/tools/cmmdm/cmmdmdbassoc/${cdarray[choice]}
+
+        # restart nginx
+        ngxrestart
+
+    else
+        # sanity check, the user doesnt want to delete domain
+        printf "Cancelled, going back to main menu.\n"
+    fi
+
+fi
+
+
+}
+#########################################################################
