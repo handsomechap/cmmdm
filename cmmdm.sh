@@ -368,3 +368,88 @@ fi
 
 }
 #########################################################################
+
+
+#########################################################################
+function funcdisassociatedb {
+# This function will disassociate a database from a domain
+
+# first lets choose a domain
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+    # okay first lets check if the domain currently has an association file, if not create one
+    assocfile=/root/tools/cmmdm/cmmdmdbassoc/${cdarray[$choice]}
+    if [ ! -f $assocfile ]; then
+        touch $assocfile
+    fi
+    # okay now lets check if any databases are currently associated to the domain
+    if [[ -s $assocfile ]] ; then
+        # if there are some associations generate a menu to remove one
+
+        # Load file into array.
+        readarray -t dbinarray < $assocfile
+
+        # insert Cancel choice
+        dbinarray=( Cancel "${dbinarray[@]}" )
+
+        for i in "${!dbinarray[@]}"; do
+          printf '   %d %s\n' "$i" "${dbinarray[i]}"
+        done
+        printf '\n'
+
+        # Now wait for user input
+        while true; do
+          read -e -r -p 'Your choice: ' choice
+          # Check that user's choice is a valid number
+          if [[ $choice = +([[:digit:]]) ]]; then
+              # Force the number to be interpreted in radix 10
+              ((choice=10#$choice))
+              # Check that choice is a valid choice
+              ((choice<${#dbinarray[@]})) && break
+          fi
+          printf 'Invalid choice, please start again.\n'
+        done
+
+        if ((choice==0)); then
+          printf 'Going back to main menu.\n'
+
+        else
+           # remove the database line from the associations file
+           # printf "here is where we will actually remove the database from the association file.\n"
+           printf "Disassociating database ${dbinarray[$choice]} from domain ${cdarray[$choice]}.\n"
+           sed -n "/${dbinarray[$choice]}/!p" $assocfile > tempfile; mv tempfile $assocfile
+        fi
+
+
+
+    else
+        printf "Error: ${cdarray[$choice]} currently has no databases associated to it.\n"
+    fi
+
+fi
+
+}
+#########################################################################
