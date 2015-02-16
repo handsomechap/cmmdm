@@ -127,3 +127,36 @@ printf '                         Okay please choose an option:\n'
 printf '+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n'
 }
 #######################################################################
+
+
+#######################################################################
+function funcdomainchoice {
+# use this function for any domain choices
+# Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+fi
+
+}
+####################################################################
