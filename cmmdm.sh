@@ -28,8 +28,8 @@ now=$(date +"%m_%d_%Y")
 #while read mysqlpass ; do
 #mysqlpass="${mysqlpass//MySQL root password: }"
 #printf "$mysqlpass\n"
-mysqlpass=
 #done
+mysqlpass=
 #######################################################################
 
 
