@@ -160,3 +160,108 @@ fi
 
 }
 ####################################################################
+
+
+
+####################################################################
+function funcsuspenddomain {
+
+# Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+
+    # test if domain.conf.suspended file does not already exist
+
+    if [ ! -f /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended ]; then
+        printf "Testing, okay domain is not currently suspended,\n"
+
+        # rename the .conf file .conf.suspended
+        mv /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended
+
+        # make new .conf file which will redirect all pages to suspended index.html
+        printf "server {\n server_name ${cdarray[choice]} www.${cdarray[choice]};\n root /home/nginx/domains/cmmdm/suspendedpage;\n location / {\n"  >> /usr/local/nginx/conf/conf.d/${cdarray[choice]}.conf
+        printf 'try_files $uri $uri/ /index.html;\n }\n}'  >> /usr/local/nginx/conf/conf.d/${cdarray[choice]}.conf
+        # restart nginx
+        ngxrestart
+        printf "The domain ${cdarray[choice]} has been suspended.\n"
+
+        # but domain.conf.suspended file does already exist
+    else printf "This domain is already suspended.\n"
+    fi
+
+fi
+}
+
+
+function funcunsuspenddomain {
+
+# Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+
+else
+    # test if domain.conf.suspended file does not already exist
+
+    if [ ! -f /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended ]; then
+       # if it doesnt exist, domain not suspended, give user message
+       printf "This domain is not currently suspended.\n"
+
+    else
+       # the domain is suspended, so remove the .conf file and rename .conf.suspended back to .conf
+       rm /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf
+       mv /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf
+       # restart nginx
+       ngxrestart
+       printf "The domain ${cdarray[choice]} has been unsuspended.\n"
+
+    fi
+
+fi
+}
+
+#########################################################################
