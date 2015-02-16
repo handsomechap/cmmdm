@@ -592,3 +592,234 @@ fi
 
 }
 #########################################################################
+
+#########################################################################
+function funcbackupdomain {
+# This function will backup a domain and any associated databases
+
+# Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!cdarray[@]}"; do
+    printf '   %d %s\n' "$i" "${cdarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#cdarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+    # okay user chooses a domain, lets backup the domain
+    # first make a temporary folder
+    # mkdir /root/tools/cmmdm/cmmdmbackup/${cdarray[$choice]}
+
+    # if its not suspended copy the domain and the conf file into temp folder
+    # else if it is suspended take the .suspended conf file instead
+    if [ ! -f /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended ]; then
+        cp /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf /root/tools/cmmdm/cmmdmbackup/${cdarray[$choice]}.conf
+    else
+        cp /usr/local/nginx/conf/conf.d/${cdarray[$choice]}.conf.suspended /root/tools/cmmdm/cmmdmbackup/${cdarray[$choice]}.conf
+
+    fi
+    printf 'Copying configuration file\n'
+
+    # next copy the domain folder
+    cp -r /home/nginx/domains/${cdarray[$choice]} /root/tools/cmmdm/cmmdmbackup/
+    printf 'Copying domain folder\n'
+
+    # next extract and zip any associated mysql databases
+    assocfile=/root/tools/cmmdm/cmmdmdbassoc/${cdarray[$choice]}
+    if [ ! -f $assocfile ]; then
+        touch $assocfile
+    fi
+    # okay now lets check if any databases are currently associated to the domain
+    if [[ -s $assocfile ]] ; then
+        # Load file into array.
+        readarray -t dbinarray < $assocfile
+        let i=0
+        while (( ${#dbinarray[@]} > i )); do
+#            printf "including associated MySQL Database: ${dbinarray[i++]}\n"
+            mysqldump -u root -p$mysqlpass ${dbinarray[i]} | gzip -9 > ${dbinarray[i]}.sql.gz
+            mv ${dbinarray[i]}.sql.gz /root/tools/cmmdm/cmmdmbackup/
+            printf "including associated MySQL Database: ${dbinarray[i++]}\n"
+
+        done
+    else
+        printf "No databases associated with domain, skipping MySQL Backups.\n"
+    fi
+
+
+    # next tar the folder and remove the temporary files
+    tar -zcf /root/tools/cmmdm/cmmdm_backup_${cdarray[$choice]}_$now.tar.gz /root/tools/cmmdm/cmmdmbackup/
+    printf "tar.gz conf file and domain folder\n"
+    printf "backup successful\n"
+    mv /root/tools/cmmdm/cmmdm_backup_${cdarray[$choice]}_$now.tar.gz /root/tools/cmmdm/completedbackups/
+    printf "backup located: /root/tools/cmmdm/completedbackups/cmmdm_backup_${cdarray[$choice]}_$now.tar.gz\n"
+
+    # finally lets remove the temporary files
+    rm -f /root/tools/cmmdm/cmmdmbackup/${cdarray[$choice]}.conf
+    rm -rf /root/tools/cmmdm/cmmdmbackup/${cdarray[$choice]}/
+    rm -f /root/tools/cmmdm/cmmdmbackup/*.sql.gz
+
+fi
+
+
+}
+#########################################################################
+
+
+#########################################################################
+function funcrestoredomain {
+# This function will restore a domain and any associated databases from a backup file
+
+
+
+# create an array with all the file inside backup folder
+bubasedir=/root/tools/cmmdm/completedbackups
+buarray=($bubasedir/*)
+
+# remove leading bubasedir:
+buarray=( "${buarray[@]#"$bubasedir/cmmdm_backup_"}" )
+# buarray=( "${buarray[@]%%_*}" )
+# insert Cancel choice
+buarray=( Cancel "${buarray[@]%}" )
+
+# You should check that you have at least one backup in there:
+if ((${#buarray[@]}<=1)); then
+    printf 'No backups found, exiting CMMDM.\n'
+    exit 0
+fi
+
+
+
+# Display the menu:
+printf 'Please choose from the following. 0 to cancel & return to main menu.\n'
+for i in "${!buarray[@]}"; do
+    printf '   %d %s\n' "$i" "${buarray[i]}"
+done
+printf '\n'
+
+# Now wait for user input
+while true; do
+    read -e -r -p 'Your choice: ' choice
+    # Check that user's choice is a valid number
+    if [[ $choice = +([[:digit:]]) ]]; then
+        # Force the number to be interpreted in radix 10
+        ((choice=10#$choice))
+        # Check that choice is a valid choice
+        ((choice<${#buarray[@]})) && break
+    fi
+    printf 'Invalid choice, please choose again.\n'
+done
+
+# At this point, we are sure the variable choice contains
+# a valid choice.
+if ((choice==0)); then
+    printf 'Going back to main menu.\n'
+
+else
+    # before we can proceed, check if domain already exists on server
+    # we want to see if either conf file or domain folder already exist
+    buarraytest=( "${buarray[choice]%%_*}" )
+    printf "okay lets attempt to restore the domain $buarraytest\n\n"
+
+    if [ ! -f /usr/local/nginx/conf/conf.d/$buarraytest.conf ]; then
+        # okay the conf file doesnt exist, lets continue
+        printf "Okay no current conf file found.\n"
+
+        if [ ! -f /home/nginx/domains/$buarraytest/ ]; then
+             # okay the domain folder doesnt exist either
+             printf "Okay no current domain folder found.\n"
+             # okay so domain really doesnt currently exist,
+             # first clear any previous aborted backups
+             rm -rf /root/tools/cmmdm/completedbackups/root/
+             # okay lets get started extracting
+             printf "Unzipping file: cmmdm_backup_${buarray[choice]} \n"
+             tar -zxf $bubasedir/cmmdm_backup_${buarray[choice]} -C /root/tools/cmmdm
+             # first move the conf file
+             printf "Moving conf file \n"
+             mv /root/tools/cmmdm/root/tools/cmmdm/cmmdmbackup/$buarraytest.conf /usr/local/nginx/conf/conf.d/
+             chown nginx /usr/local/nginx/conf/conf.d/$buarraytest.conf
+             chgrp nginx /usr/local/nginx/conf/conf.d/$buarraytest.conf
+             # next move the domain folder
+             printf "Moving domain folder \n"
+             mv /root/tools/cmmdm/root/tools/cmmdm/cmmdmbackup/$buarraytest/ /home/nginx/domains/
+             chown -R nginx /home/nginx/domains/$buarraytest
+             chgrp -R nginx /home/nginx/domains/$buarraytest
+
+             # next check if any sql files exist
+
+             # create an array with all the file inside backup folder
+             budbbasedir=/root/tools/cmmdm/root/tools/cmmdm/cmmdmbackup/
+             # printf "$budbbasedir\n"
+             budbarray=( "$budbbasedir"/* )
+
+             # remove leading bubasedir:
+             budbarray=( "${budbarray[@]#"$budbbasedir/"}" )
+             # remove trailing .sql.gz
+             budbarray=( "${budbarray[@]%".sql.gz"}" )
+
+
+             # You should check that you have at least one database in there:
+             if ((${#budbarray[@]}<=1)); then
+                 printf 'No database backups found\n'
+
+             else
+                 # Display the menu:
+                 printf "Okay Databases found, attempting to restore them:\n\n"
+                 for i in "${!budbarray[@]}"; do
+                     printf "   ${budbarray[i]}\n"
+                     # test if mysql already exists
+                     dbrestoreresult=$(mysql -s -N -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${budbarray[i]}'");
+
+                     if [ -z "$dbrestoreresult" ]; then
+                     printf "   Okay db does not exist, restoring it now.\n\n"
+
+                     gunzip < [$budbbasedir${budbarray[i]}.sql.gz] | mysql -u root -p$mysqlpass ${budbarray[i]}
+
+                     else
+                     printf "   ERROR: database already exists, unable to restore.\n\n"
+                     fi
+
+
+
+                 done
+                 printf '\n'
+
+             fi
+
+             # finished restoring domain, restart nginx
+             ngxrestart
+
+             # remove temporarily extracted backup files
+             rm -rf /root/tools/cmmdm/root/
+
+        else
+            printf 'ERROR: The domain cannot be restored, the domain folder already exists.\n'
+        fi
+
+    else
+        printf 'ERROR: The domain cannot be restored, the conf file already exists.\n'
+    fi
+
+fi
+
+
+
+}
+#########################################################################
+
